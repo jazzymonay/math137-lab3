@@ -1,6 +1,6 @@
 module Life exposing (..)
 
-import Debug exposing (todo)
+import Debug exposing (..)
 
 type alias Cell = { x : Int, y : Int }
 
