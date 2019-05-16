@@ -25,7 +25,7 @@ type alias State = { board : Board, paused : Bool }
 
 -- A type for your game events. As your game gets more features, you will
 -- probably add more variants to this type.
-type Event = NoOp
+type Event = NoOp | CellClick Cell
 
 
 main : Game.Game State Event
@@ -82,12 +82,44 @@ updateGame event currentState =
 
     -- What to do when the player presses or releases a key
     Game.Keyboard keyEvent ->
-      currentState -- for now, we're ignoring keyboard events
+      case keyEvent of
+        Keyboard.KeyEventDown Keyboard.KeySpace ->
+          let
+            newPaused : Bool 
+            newPaused =
+              case currentState.paused of
+                True -> False 
+                False -> True 
+              
+          in
+          { board = currentState.board, paused = newPaused }
+          -- todo "a new state with the same board but opposite paused"
+        _ ->
+          currentState
 
     -- What to do when we get a `NoOp`
     Game.Custom NoOp->
       currentState
+    Game.Custom (CellClick cell) ->
+      let
+          newBoard = flipCell cell currentState.board
+      in
+      { board = newBoard, paused = currentState.paused }
 
+flipCell : Cell -> Board -> Board
+flipCell clickedCell oldBoard =
+  let
+      newBoard : Cell -> CellStatus
+      newBoard cell =
+        if clickedCell == cell -- if cell is the clicked cell
+          then case oldBoard cell of
+            Alive->Dead 
+            Dead->Alive -- opposite of what old board would do
+          else oldBoard cell -- same as what old board would do
+        -- todo "if cell is the clicked cell, then give back the opposite of what the old board would have"
+        -- todo "if cell is not the clicked cell, then give back what the old board would have"
+  in
+  newBoard
 
 -- Pick a size for the game board.
 -- Hint: Use this when you go to write `drawCell` and `drawGame`
@@ -109,7 +141,7 @@ allCells =
 drawGame : State -> Graphics.Canvas Event
 drawGame state =
   let
-    drawCell : Cell -> Graphics.Svg a
+    drawCell : Cell -> Graphics.Svg Event 
     drawCell cell =
       let
         cellStatus : CellStatus
@@ -127,12 +159,12 @@ drawGame state =
         width = 5,
         height = 5,
         fill = cellColor,
-        onClick = Nothing 
+        onClick = Just (CellClick cell)
       })
 
        
 
-    cells : List (Graphics.Svg a)
+    cells : List (Graphics.Svg Event)
     cells = List.map drawCell allCells
         -- oneBigOleRect : Graphics.Svg Event
         -- oneBigOleRect =

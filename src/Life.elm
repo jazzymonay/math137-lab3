@@ -28,22 +28,37 @@ nextStatus numberOfLivingNeighbors currentStatus =
 -- calculates the number of living neighbors of a cell,
 -- given a board and a cell.
 livingNeighbors : Board -> Cell -> Int
-livingNeighbors currentBoard { x, y } = 0
- -- let
-    --     allNeighbors : List Cell
-    --     allNeighbors = [ { x = x - 1, y = y + 1 },
-    --                { x = x, y = y + 1 },
-    --                { x = x + 1, y = y + 1 },
-    --                { x = x - 1, y = y },
-    --                { x = x + 1, y = y },
-    --                { x = x - 1, y = y - 1 },
-    --                { x = x, y = y - 1 },
-    --                { x = x + 1, y = y - 1}
-    --                      ]
-    
-    -- in
+livingNeighbors currentBoard { x, y } = 
+    let
+        allNeighbors : List Cell
+        allNeighbors = [ { x = x - 1, y = y + 1 },
+                   { x = x, y = y + 1 },
+                   { x = x + 1, y = y + 1 },
+                   { x = x - 1, y = y },
+                   { x = x + 1, y = y },
+                   { x = x - 1, y = y - 1 },
+                   { x = x, y = y - 1 },
+                   { x = x + 1, y = y - 1}
+                         ]
 
-    -- sumOfList
+        allStatuses : List CellStatus
+        allStatuses = List.map currentBoard allNeighbors 
+
+        numericalStatus : List Int
+        numericalStatus = List.map statusToInt allStatuses 
+
+        statusToInt : CellStatus -> Int 
+        statusToInt j = 
+            case j of 
+                Alive -> 1
+                Dead -> 0
+
+        sumOfList : Int 
+        sumOfList = List.sum numericalStatus 
+    
+    in
+
+    sumOfList
   
 
 -- calculates the next board given the current board.
@@ -62,4 +77,3 @@ nextBoard currentBoard =
        
     in
     newBoard
-    
